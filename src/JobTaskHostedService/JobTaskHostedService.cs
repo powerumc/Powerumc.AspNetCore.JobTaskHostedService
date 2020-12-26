@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace Powerumc.AspNetCore.JobTaskHostedService
 {
     /// <summary>
-    /// 백그라운드 Job 서비스 클래스 입니다.
+    /// Background hosted service
     /// </summary>
     internal class JobTaskHostedService : IJobTaskHostedService
     {
@@ -15,7 +15,7 @@ namespace Powerumc.AspNetCore.JobTaskHostedService
         private readonly ILoggerFactory _loggerFactory;
 
         /// <summary>
-        /// Job 목록
+        /// Job dictionary
         /// </summary>
         private readonly ConcurrentDictionary<string, TaskAsyncJob> _jobs = new();
 
@@ -30,9 +30,9 @@ namespace Powerumc.AspNetCore.JobTaskHostedService
         }
 
         /// <summary>
-        /// 백그라운드 서비스를 시작
+        /// Start the job
         /// </summary>
-        /// <param name="cancellationToken">취소 토큰</param>
+        /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Start {nameof(JobTaskHostedService)}");
@@ -46,9 +46,9 @@ namespace Powerumc.AspNetCore.JobTaskHostedService
         }
 
         /// <summary>
-        /// 백그라운드 작업을 중지합니다.
+        /// Stop the job.
         /// </summary>
-        /// <param name="cancellationToken">취소 토큰</param>
+        /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Stop {nameof(JobTaskHostedService)}");
@@ -70,8 +70,7 @@ namespace Powerumc.AspNetCore.JobTaskHostedService
         public TaskAsyncJob CreateJob(string jobName)
         {
             _logger.LogInformation($"CreateJob '{jobName}'");
-            
-            // Job 을 생성
+
             var job = new TaskAsyncJob(jobName, _loggerFactory.CreateLogger<TaskAsyncJob>());
             job.JobTaskCompleted += JobOnJobTaskCompleted;
             _jobs.TryAdd(jobName, job);
@@ -83,8 +82,7 @@ namespace Powerumc.AspNetCore.JobTaskHostedService
         public void Stop(string jobName)
         {
             _logger.LogInformation($"Stop Job '{jobName}'");
-            
-            // Job 제거
+
             if (_jobs.TryGetValue(jobName, out var job))
             {
                 job.JobTaskCompleted -= JobOnJobTaskCompleted;
