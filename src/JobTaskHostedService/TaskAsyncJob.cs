@@ -63,12 +63,11 @@ namespace Powerumc.AspNetCore.JobTaskHostedService
                 {
                     _logger.LogDebug($"Process Job Task Dequeue '{JobName}.'{jobTask.TaskId}''");
 
-                    await Task.ContinueWith(async task => { await ProcessTaskInternal(jobTask); }, CancellationTokenSource.Token)
-                        .ConfigureAwait(false);
+                    await ProcessTaskInternal(jobTask).ConfigureAwait(false);
                 }
                 else
                 {
-                    ManualResetEvent.WaitOne();
+                    Pause();
                 }
             }
 
@@ -123,6 +122,14 @@ namespace Powerumc.AspNetCore.JobTaskHostedService
 
             CancellationTokenSource.Cancel();
             Task.Dispose();
+        }
+
+        /// <summary>
+        /// Pause the job task.
+        /// </summary>
+        public void Pause()
+        {
+            ManualResetEvent.WaitOne();
         }
     }
 }
